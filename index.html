@@ -9,10 +9,11 @@
     <body>
         <div id="game-container">
             <div id="top-bar">
+                <div>Волна: <span id="wave-display">1</span></div>
+                <div>Прогресс: <span id="wave-progress-display">0/10</span></div>
                 <div>Счет: <span id="score-display">0</span></div>
                 <div>Убито: <span id="kills-display">0</span></div>
                 <div>Множитель: <span id="multiplier-display">x1.00</span></div>
-                <div>Увеличение через: <span id="killsForNext-display">10</span></div>
             </div>
             <canvas id="gameCanvas" width="800" height="800"></canvas>
             <div id="main-menu" class="ui-panel">
@@ -22,6 +23,10 @@
             <div id="game-over" class="ui-panel hidden">
                 <h1>Увы, вы проиграли😢</h1>
                 <button id="restart-btn">Играть снова</button>
+            </div>
+            <div id="game-pause" class="ui-panel hidden">
+                <h1>Игра на паузе</h1>
+                <button id="resume-btn">Продолжить</button>
             </div>
         </div>
         <script type="module" src="js/main.js"></script>
