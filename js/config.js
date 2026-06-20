@@ -1,8 +1,8 @@
 
 export const gameConfig = {
     canvas: {
-        width: 800,
-        height: 800
+        width: 1000,
+        height: 900
     },
     
     enemySpawn: {
@@ -14,6 +14,8 @@ export const gameConfig = {
         killsForNextMultiplier: 10,
         multiplierGrowth: 1.5
     },
+
+    durationInvulnerability: 1000,
     
     enemyTypes: [
         {
@@ -24,10 +26,12 @@ export const gameConfig = {
                 { sx: 200, sy: 0, swidth: 42, sheight: 48 },
                 { sx: 242, sy: 0, swidth: 28, sheight: 56 }
             ],
-            speed: 1,
-            dy: 2,
+            speed: 1.8,
+            dy: 1,
             points: 5,
-            health: 1
+            health: 1,
+            damage: 1,
+            armor: 0
         },
         {
             name: 'mediumShip',
@@ -37,10 +41,12 @@ export const gameConfig = {
                 { sx: 82, sy: 0, swidth: 58, sheight: 60 },
                 { sx: 140, sy: 0, swidth: 60, sheight: 56 }
             ],
-            speed: 0.8,
-            dy: 2,
+            speed: 1.4,
+            dy: 1,
             points: 10,
-            health: 2
+            health: 2,
+            damage: 1,
+            armor: 0
         },
         {
             name: 'largeShip',
@@ -49,10 +55,12 @@ export const gameConfig = {
                 { sx: 270, sy: 0, swidth: 56, sheight: 60 },
                 { sx: 326, sy: 0, swidth: 52, sheight: 60 } 
             ],
-            speed: 0.5,
-            dy: 2,
+            speed: 1,
+            dy: 1,
             points: 20,
-            health: 4
+            health: 4,
+            damage: 2,
+            armor: 1
         },
         {
             name: 'Boss',
@@ -60,10 +68,25 @@ export const gameConfig = {
             sprites: [
                 { sx: 0, sy: 0, swidth: 197, sheight: 185 }
             ],
-            speed: 0.5,
-            dy: 2,
-            points: 20,
-            health: 10
+            speed: 0.8,
+            dy: 1,
+            points: 40,
+            health: 10,
+            damage: 3,
+            armor: 2
+        },
+        {
+            name: 'strongBoss',
+            spriteSheet: 'images/strongBoss.png',
+            sprites: [
+                { sx: 0, sy: 0, swidth: 635, sheight: 167 }
+            ],
+            speed: 0.4,
+            dy: 1,
+            points: 100,
+            health: 50,
+            damage: 3,
+            armor: 3
         }
     ],
     
@@ -87,40 +110,34 @@ export const gameConfig = {
             maxEnemies: 5,
             enemyTypes: [
                 { name: 'smalShip', weight: 100 },  // 100% шанс
-                { name: 'mediumShip', weight: 0 },   // 0% шанс
-                { name: 'largeShip', weight: 0 },
-                { name: 'Boss', weight: 0 }
             ]
         },
         {
             name: 'Первый контакт',
-            killsNeeded: 15,
+            killsNeeded: 20,
             spawnInterval: 1500,
-            maxEnemies: 8,
+            maxEnemies: 10,
             enemyTypes: [
                 { name: 'smalShip', weight: 70 },
                 { name: 'mediumShip', weight: 30 },
-                { name: 'largeShip', weight: 0 },
-                { name: 'Boss', weight: 0 }
             ]
         },
         {
             name: 'Усиление',
-            killsNeeded: 20,
+            killsNeeded: 40,
             spawnInterval: 1200,
-            maxEnemies: 12,
+            maxEnemies: 15,
             enemyTypes: [
                 { name: 'smalShip', weight: 50 },
                 { name: 'mediumShip', weight: 35 },
-                { name: 'largeShip', weight: 15 },
-                { name: 'Boss', weight: 0 }
+                { name: 'largeShip', weight: 15 }
             ]
         },
         {
             name: 'Босс приближается',
-            killsNeeded: 25,
+            killsNeeded: 70,
             spawnInterval: 1000,
-            maxEnemies: 15,
+            maxEnemies: 30,
             enemyTypes: [
                 { name: 'smalShip', weight: 40 },
                 { name: 'mediumShip', weight: 30 },
@@ -130,26 +147,28 @@ export const gameConfig = {
         },
         {
             name: 'Боссы атакуют',
-            killsNeeded: 150,
+            killsNeeded: 120,
             spawnInterval: 800,
-            maxEnemies: 20,
+            maxEnemies: 40,
             enemyTypes: [
-                { name: 'smalShip', weight: 30 },
+                { name: 'smalShip', weight: 28 },
                 { name: 'mediumShip', weight: 30 },
                 { name: 'largeShip', weight: 25 },
-                { name: 'Boss', weight: 15 }
+                { name: 'Boss', weight: 15 },
+                { name: 'strongBoss', weight: 2 }
             ]
         },
         {
             name: 'Хаос',
             killsNeeded: 300,
             spawnInterval: 600,
-            maxEnemies: 30,
+            maxEnemies: 60,
             enemyTypes: [
-                { name: 'smalShip', weight: 15 },
-                { name: 'mediumShip', weight: 30 },
+                { name: 'smalShip', weight: 10 },
+                { name: 'mediumShip', weight: 25 },
                 { name: 'largeShip', weight: 30 },
-                { name: 'Boss', weight: 25 }
+                { name: 'Boss', weight: 25 },
+                { name: 'strongBoss', weight: 10 }
             ]
         },
         {
@@ -158,28 +177,31 @@ export const gameConfig = {
             spawnInterval: 500,
             maxEnemies: 100,
             enemyTypes: [
-                { name: 'smalShip', weight: 5 },
-                { name: 'mediumShip', weight: 20 },
-                { name: 'largeShip', weight: 40 },
-                { name: 'Boss', weight: 35 }
+                { name: 'smalShip', weight: 0 },
+                { name: 'mediumShip', weight: 10 },
+                { name: 'largeShip', weight: 35 },
+                { name: 'Boss', weight: 35 },
+                { name: 'strongBoss', weight: 20 }
             ]
         }
     ],
 
     bonusRates: {
-        smalShip: 0.05,    // 5% шанс
-        mediumShip: 0.10,  // 10% шанс
-        largeShip: 0.20,   // 20% шанс
-        Boss: 0.40         // 40% шанс
+        smalShip: 0.15,    // 15% шанс
+        mediumShip: 0.25,  // 25% шанс
+        largeShip: 0.40,   // 40% шанс
+        Boss: 0.50,         // 40% шанс
+        strongBoss: 0.90         //90% шанс
     },
     
     bonusTypes: [
-        { type: 'health', weight: 30 },        // 30%
-        { type: 'fullHealth', weight: 10 },    // 10%
+        { type: 'health', weight: 22 },        // 30%
+        { type: 'shield', weight: 22 },        // 15%
+        { type: 'speed', weight: 20 },     // 5%
         { type: 'fireRate', weight: 15 },      // 20%
-        { type: 'multiShot', weight: 15 },     // 20%
-        { type: 'shield', weight: 30 },        // 15%
-        { type: 'strongShield', weight: 10 }    // 5%
+        { type: 'multiShot', weight: 10 },     // 20%
+        { type: 'fullHealth', weight: 6 },    // 10%
+        { type: 'strongShield', weight: 5 },  // 5%
     ]
 };
 

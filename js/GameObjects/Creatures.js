@@ -6,9 +6,9 @@ class Creature extends GameObject{
     constructor(width, height, sizeX, sizeY){
         super(width, height, sizeX, sizeY);
 
-        this.speed = 1;// Скорость движения (пикселей за кадр)
-        this.dx = 5; // Изменение по X
-        this.dy = 5; // Изменение по Y
+        this.speed = 1.5;// Скорость движения (пикселей за кадр)
+        this.dx = 2; // Изменение по X
+        this.dy = 2; // Изменение по Y
     }
 
 }
@@ -35,6 +35,7 @@ export class Player extends Creature{
         this.currentDirection = 'idle';
 
         this.shield = null;
+        this.invulnerableUntil = 0; 
 
         this.updateWeaponStats();
     }
@@ -89,8 +90,78 @@ export class Player extends Creature{
         return new Bullet(bulletX, bulletY);
     }
 
+    activateInvulnerability(duration) {
+        this.invulnerableUntil = Date.now() + duration;
+    }
+
+    isInvulnerable() {
+        return Date.now() < this.invulnerableUntil;
+    }
+
+    hasShield() {
+        return this.shield && Date.now() < this.shield.expiresAt;
+    }
+    
+    takeDamage(damageAmount) {
+        if (this.hasShield()) {
+            return false; 
+        }
+
+        if (this.isInvulnerable()) {
+            return false;
+        }
+
+        this.playerHealth -= damageAmount;
+        this.activateInvulnerability(2000); // 1 секунда неуязвимости
+        
+        return this.playerHealth <= 0;
+    }
+        
+    handleShieldCollision(enemy) {
+        const armor = enemy.armor || 0;
+        if (this.shield.isStrong) {
+            //Сильный щит
+            if (armor < 2) {
+                // Броня меньше 2: щит цел, враг уничтожается
+                return true; // Враг умирает
+            } else if (armor === 2) {
+                // Ровно 2: щит ломается, враг уничтожается
+                this.shield = null;
+                this.activateInvulnerability(gameConfig.durationInvulnerability);
+                return true; // Враг умирает
+            } else {
+                // Больше 2: щит ломается, враг получает 10 урона и остается
+                this.shield = null;
+                this.activateInvulnerability(gameConfig.durationInvulnerability);
+                
+                console.log(enemy.enemyHealth);
+
+                enemy.enemyHealth -= 10;
+                
+                console.log(enemy.enemyHealth);
+                
+                return enemy.enemyHealth <= 0; // Умирает ли он от этого урона?
+            }
+        } else {
+            //Простой
+            this.shield = null; // Ломается всегда
+            this.activateInvulnerability(gameConfig.durationInvulnerability);
+            
+            if (armor < 1) {
+                return true; // Враг уничтожается
+            } else {
+                return false; // Враг остается
+            }
+        }
+    }
+
     updateWeaponStats() {
         switch (this.weaponSpeedLevel) {
+            case -4: this.shootCooldown = 1400; break;
+            case -3: this.shootCooldown = 1300; break;
+            case -2: this.shootCooldown = 1200; break;
+            case -1: this.shootCooldown = 1100; break;
+            case 0: this.shootCooldown = 1000; break;
             case 1: this.shootCooldown = 800; break;
             case 2: this.shootCooldown = 750; break;
             case 3: this.shootCooldown = 700; break;
@@ -101,7 +172,11 @@ export class Player extends Creature{
         }
 
     }
-    
+
+    upgradeSpeed() {
+        this.speed += 0.2;
+    }
+
     upgradeSpeedWeapon() {
         this.weaponSpeedLevel++;
         this.updateWeaponStats();
@@ -109,6 +184,8 @@ export class Player extends Creature{
 
     upgradeBulletCount() {
         this.weaponBulletCount++;
+        this.weaponSpeedLevel--;
+        this.updateWeaponStats();
     }
 
     activateShield(duration, isStrong) {
@@ -118,21 +195,6 @@ export class Player extends Creature{
         };
     }
 
-    hasShield() {
-        return this.shield && Date.now() < this.shield.expiresAt;
-    }
-    
-    takeDamage() {
-        if (this.hasShield()) {
-            if (!this.shield.isStrong) {
-                this.shield = null; // Обычный щит ломается
-            }
-            return false; // Урон не получен
-        }
-        
-        this.playerHealth--;
-        return this.playerHealth <= 0;
-    }
 
     drawCooldownBar(ctx) {
         const player = this;
@@ -205,6 +267,10 @@ export class Player extends Creature{
     draw(ctx) {
         const sprite = this.sprites[this.currentDirection];
         
+        if (this.isInvulnerable()) {
+            const blink = Math.floor(Date.now() / 50) % 2 === 0;
+            if (!blink) return; // Пропускаем отрисовку кадра
+        }
         // Проверяем, что картинка загружена
         if (sprite && sprite.complete) {
             ctx.drawImage(sprite, this.x, this.y, this.sizeX, this.sizeY);
@@ -227,6 +293,8 @@ export class Enemy extends Creature{
         this.costPoint = enemyType.points;
         this.enemyHealth = enemyType.health;
         this.enemyMaxHealth = enemyType.health;
+        this.damage = enemyType.damage;
+        this.armor = enemyType.armor;
         
         this.spriteSheet = spriteSheets;
         this.spriteData = enemyType.sprites[spriteID];

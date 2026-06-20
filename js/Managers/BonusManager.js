@@ -12,9 +12,12 @@ export class BonusManager {
     
     tryDropBonuse(x, y, enemyTypeName) {
         const dropRate = gameConfig.bonusRates[enemyTypeName] || 0;
+        const randomNum = Math.random();
+        
+        console.log(`🎲 Выпало ${randomNum} из ${dropRate}`);
 
         // Проверяем, выпадет ли бонус
-        if (Math.random() < dropRate) {
+        if (randomNum < dropRate) {
             const bonuseType = this.getRandomBonuseType();
             const bonuse = new Bonus(x, y, bonuseType);
             this.activeBonuses.push(bonuse);
@@ -37,15 +40,15 @@ export class BonusManager {
         return types[0].type;
     }
     
-    update() {
+    update(deltaTime) {
         // Двигаем бонусы
         for (const bonuse of this.activeBonuses) {
-            bonuse.move();
+            bonuse.move(deltaTime);
         }
         
         // Удаляем улетевшие и истёкшие
         this.activeBonuses = this.activeBonuses.filter(p => 
-            !p.isOffScreen(800, 800) && !p.isExpired()
+            !p.isOffScreen(gameConfig.canvas.height,gameConfig.canvas.width) && !p.isExpired()
         );
     }
     
@@ -109,7 +112,7 @@ export class BonusManager {
                     player.upgradeBulletCount();
                     return true;
                 }
-                return true;
+                return false;
                 break;
                 
             case 'shield':
@@ -120,7 +123,20 @@ export class BonusManager {
             case 'strongShield':
                 player.activateShield(15000, true); // 15 секунд, крепкий щит
                 return true;
+                break;   
+
+            case 'speed':
+                if(player.speed < 2.4){
+                    player.upgradeSpeed(); // 15 секунд, крепкий щит
+                    return true;
+                }
+                return false;
                 break;
+                                
+            // case 'strongShield':
+            //     player.activateShield(15000, true); // 15 секунд, крепкий щит
+            //     return true;
+            //     break;
         }
         
         return false;

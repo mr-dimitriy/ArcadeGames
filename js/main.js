@@ -8,6 +8,8 @@ import { WaveManager } from "./Managers/WaveManager.js";
 import { BonusManager } from "./Managers/BonusManager.js";
 import { gameConfig } from "./config.js";
 
+import { Bonus } from "./GameObjects/Bonus.js";
+
 class Game{
     constructor(){
         //Холст игры
@@ -68,7 +70,7 @@ class Game{
                     this.input.pauseKey = !this.input.pauseKey;
                 });
         }
-
+        
     }
 
     startGame() {
@@ -157,8 +159,6 @@ class Game{
     spawnEnemy() {
         const enemyTypeName = this.waveManager.getRandomEnemyType();
         const enemy = this.enemyFactory.createByType(
-            this.canvas.width,
-            this.canvas.height,
             enemyTypeName
         );
         
@@ -171,15 +171,18 @@ class Game{
         
         const currentTime = Date.now();
         const deltaTime = currentTime - this.lastFrameTime;
+
+        if (deltaTime > 100) deltaTime = 16; 
+        
         this.lastFrameTime = currentTime;
 
         // Обновляем менеджер волн
         this.waveManager.update(deltaTime);
-        this.bonusManager.update();
+        this.bonusManager.update(deltaTime);
 
-        const collectedPowerUp = this.bonusManager.checkCollision(this.player);
-        if (collectedPowerUp) {
-            this.ui.showPowerUpNotification(collectedPowerUp);
+        const collectedBonus = this.bonusManager.checkCollision(this.player);
+        if (collectedBonus) {
+            this.ui.showBonusNotification(collectedBonus);
         }
 
         // Спавним врагов по таймеру волны
@@ -199,6 +202,7 @@ class Game{
     updatePause(){
         this.gamePause = this.input.pauseKey;
         this.ui.showAndHidePause(this.gamePause);
+        this.lastFrameTime = Date.now();
     }
 
     updatePlayer() {
@@ -294,22 +298,25 @@ class Game{
             }
 
             if (!this.enemies[j]) continue;
-
+            if (player.isInvulnerable()) continue;
+            
             if (this.isColliding(player, enemy)) {
-                this.enemies.splice(j, 1);
+                let enemyDies = false;
 
                 // Проверяем щит
-                if (player.hasShield()) {
-                    if (!player.shield.isStrong) {
-                        player.shield = null;
-                    }
+                if (player.hasShield()) {   
+                    enemyDies = player.handleShieldCollision(enemy);
                 } else {
-                    this.scoreManager.clearMultiplier();
-                    player.playerHealth--;
+                    // Обычный урон с учетом типа врага
+                    const isDead = player.takeDamage(enemy.damage || 1);
+                    if (isDead) this.gameOver();
                     
-                    if (player.playerHealth < 1) {
-                        this.gameOver();
-                    }
+                    // При столкновении враг тоже обычно уничтожается (таран)
+                    enemyDies = true; 
+                }
+
+                if (enemyDies) {
+                    this.enemies.splice(j, 1);
                 }
                 break;
             }
@@ -330,18 +337,48 @@ class Game{
         const points = this.scoreManager.onEnemyKilled(enemy.costPoint);
         this.ui.updateAll(this.scoreManager);
         
-        // Уведомляем менеджер волн об убийстве
-        const waveChanged = this.waveManager.onEnemyKilled();
-        
-        if (waveChanged) {
+        const isNextWave = this.waveManager.onEnemyKilled();
+        if(isNextWave){
             this.ui.showWaveNotification(this.waveManager.getCurrentWave().name);
         }
-        
+
         this.ui.updateWaveInfo(this.waveManager.getWaveInfo());
     }
 }
 
+let game = null;
 
-document.addEventListener('DOMContentLoaded', () => new Game());
+document.addEventListener('DOMContentLoaded', () =>{
+    game = new Game();
 
+    // 2. Делаем игру доступной в консоли
+    window.game = game;
+    
+    // 3. Добавляем функцию отладки, которая работает с ЭТИМ экземпляром
+    window.debugSpawnBonus = (type = 'strongShield') => {
+        if (!game || !game.bonusManager) {
+            console.error('Игра или менеджер бонусов еще не инициализированы!');
+            return;
+        }
+        
+        // Создаем бонус в центре экрана
+        const bonus = new Bonus(500, 400, type);
+        // ВАЖНО: Добавляем его в активные бонусы игры!
+        game.bonusManager.activeBonuses.push(bonus);
+    };
+
+        // 3. Добавляем функцию отладки, которая работает с ЭТИМ экземпляром
+    window.debugSpawnEnemy = (type = 'Boss') => {
+        if (!game || !game.enemyFactory) {
+            console.error('Игра или менеджер бонусов еще не инициализированы!');
+            return;
+        }
+        const enemy = game.enemyFactory.createByType(type);
+
+        if (enemy) {
+            game.enemies.push(enemy);
+        }
+    };
+});
+    
 

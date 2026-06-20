@@ -5,14 +5,69 @@ export class UIManager {
         this.killsDisplay = document.getElementById('kills-display');
         this.multiplierDisplay = document.getElementById('multiplier-display');
         this.killsForNextDisplay = document.getElementById('killsForNext-display');
+
+        // Панели меню
         this.mainMenu = document.getElementById('main-menu');
         this.gameOverScreen = document.getElementById('game-over');
         this.pauseScreen = document.getElementById('game-pause');
 
+        // Элементы уведомлений
+        this.notifMultiplier = document.getElementById('notification-multiplier');
+        this.notifWave = document.getElementById('notification-wave');
+        this.notifBonus = document.getElementById('notification-bonus');
+        // Внутренние span для текста
+        this.notifMultValue = document.getElementById('notif-mult-value');
+        this.notifWaveName = document.getElementById('notif-wave-name');
+        this.notifBonusName = document.getElementById('notif-bonus-name');
+
         this.waveDisplay = document.getElementById('wave-display');
         this.waveProgressDisplay = document.getElementById('wave-progress-display');
+
+        // Таймеры для автоматического скрытия
+        this.hideTimers = {};
     }
     
+    showNotification(element, duration = 2000) {
+        // Если уже показывается — сбрасываем таймер
+        if (this.hideTimers[element.id]) {
+            clearTimeout(this.hideTimers[element.id]);
+        }
+        
+        // Перезапускаем анимацию
+        element.classList.remove('show', 'hidden');
+        // Форсируем reflow для перезапуска CSS-анимации
+        void element.offsetWidth;
+        element.classList.add('show');
+        
+        // Автоматически скрываем через duration
+        this.hideTimers[element.id] = setTimeout(() => {
+            element.classList.remove('show');
+            element.classList.add('hidden');
+            delete this.hideTimers[element.id];
+        }, duration);
+    }
+
+    showMultiplierNotification(multiplier) {
+        if (this.notifMultValue) {
+            this.notifMultValue.textContent = multiplier.toFixed(2);
+        }
+        this.showNotification(this.notifMultiplier, 2000);
+    }
+    
+    showWaveNotification(waveName) {
+        if (this.notifWaveName) {
+            this.notifWaveName.textContent = waveName;
+        }
+        this.showNotification(this.notifWave, 2500);
+    }
+    
+    showBonusNotification(bonusName) {
+        if (this.notifBonusName) {
+            this.notifBonusName.textContent = bonusName;
+        }
+        this.showNotification(this.notifBonus, 1500);
+    }
+
     updateScore(score) {
         if (this.scoreDisplay) this.scoreDisplay.textContent = score;
     }
@@ -65,67 +120,5 @@ export class UIManager {
     showAndHidePause(hide) {
         hide == true? this.pauseScreen.classList.remove('hidden') : this.pauseScreen.classList.add('hidden');
     }
-    
-    showMultiplierNotification(multiplier) {
-        const notification = document.createElement('div');
-        notification.textContent = `Множитель x${multiplier.toFixed(2)}!`;
-        notification.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 215, 0, 0.9);
-            color: #000;
-            padding: 20px 40px;
-            font-size: 32px;
-            font-weight: bold;
-            border-radius: 10px;
-            z-index: 1000;
-            animation: fadeInOut 2s forwards;
-        `;
-        document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 2000);
-    }
-    
-    showWaveNotification(waveName) {
-        const notification = document.createElement('div');
-        notification.textContent = `🌊 Волна: ${waveName}!`;
-        notification.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 150, 255, 0.9);
-            color: #fff;
-            padding: 20px 40px;
-            font-size: 32px;
-            font-weight: bold;
-            border-radius: 10px;
-            z-index: 1000;
-            animation: fadeInOut 2s forwards;
-        `;
-        document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 2000);
-    }
 
-    showPowerUpNotification(powerUpName) {
-        const notification = document.createElement('div');
-        notification.textContent = `✨ Получено: ${powerUpName}!`;
-        notification.style.cssText = `
-            position: fixed;
-            top: 30%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 255, 100, 0.9);
-            color: #000;
-            padding: 15px 30px;
-            font-size: 24px;
-            font-weight: bold;
-            border-radius: 8px;
-            z-index: 1000;
-            animation: fadeInOut 1.5s forwards;
-        `;
-        document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 1500);
-    }
 }

@@ -6,9 +6,7 @@ export class EnemyFactory {
         this.spriteSheets = spriteSheets;
     }
 
-
-
-    createByType(canvasWidth, canvasHeight, typeName) {
+    createByType(typeName) {
         const enemyType = gameConfig.enemyTypes.find(t => t.name === typeName);
         
         if (!enemyType) {
@@ -25,18 +23,18 @@ export class EnemyFactory {
 
         
         return new Enemy(
-            canvasWidth,
-            canvasHeight,
+            gameConfig.canvas.width,
+            gameConfig.canvas.height,
             enemyType,
             spriteID,
             spriteSheet
         );
     }
     
-    createRandom(canvasWidth, canvasHeight) {
+    createRandom() {
         const types = gameConfig.enemyTypes;
         const randomType = types[Math.floor(Math.random() * types.length)];
-        return this.createByType(canvasWidth, canvasHeight, randomType.name);
+        return this.createByType(randomType.name);
     }
 
     // createBoss(canvasWidth, canvasHeight){

@@ -34,7 +34,9 @@ export class WaveManager {
         // Проверяем, достигли ли цели волны
         if (this.killsInWave >= currentWave.killsNeeded) {
             this.nextWave();
+            return true;
         }
+        return false;
     }
     
     nextWave() {

@@ -7,8 +7,8 @@ export class Bonus extends GameObject {
         this.type = type; // 'health', 'fullHealth', 'fireRate', 'multiShot', 'shield', 'strongShield'
         this.speed = 2; // Скорость падения
         this.lifetime = 10000; // Бонус исчезает через 10 секунд
-        this.createdAt = Date.now();
-        
+        this.lifetimeElapsed = 0;
+
         // Настройка внешнего вида в зависимости от типа
         this.setupAppearance();
     }
@@ -45,15 +45,25 @@ export class Bonus extends GameObject {
                 this.symbol = '🔰';
                 this.name = 'Крепкий щит';
                 break;
+            case 'speed':
+                this.color = '#ecff95ff';
+                this.symbol = '🚀';
+                this.name = 'Ускорение';
+                break;
         }
     }
     
-    move() {
-        this.y += this.speed;
+    move(deltaTime) {
+        // Движение тоже лучше привязать к deltaTime для плавности при лагах/паузах
+        const speedMultiplier = deltaTime / 16; // Нормализация под ~60 FPS
+        this.y += this.speed * speedMultiplier;
+        
+        // ⏱️ Увеличиваем счетчик времени жизни только при активном движении
+        this.lifetimeElapsed += deltaTime;
     }
     
     isExpired() {
-        return Date.now() - this.createdAt > this.lifetime;
+        return this.lifetimeElapsed >= this.lifetime;
     }
     
     draw(ctx) {

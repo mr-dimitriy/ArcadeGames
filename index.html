@@ -15,9 +15,22 @@
                 <div>Убито: <span id="kills-display">0</span></div>
                 <div>Множитель: <span id="multiplier-display">x1.00</span></div>
             </div>
-            <canvas id="gameCanvas" width="800" height="800"></canvas>
+            <canvas id="gameCanvas" width="1000" height="900"></canvas>
+
+            <div id="notification-multiplier" class="game-notification hidden">
+                Множитель x<span id="notif-mult-value">2.00</span>!
+            </div>
+            
+            <div id="notification-wave" class="game-notification hidden">
+                🌊 Волна: <span id="notif-wave-name">Разведка</span>!
+            </div>
+            
+            <div id="notification-bonus" class="game-notification hidden">
+                ✨ Получено: <span id="notif-bonus-name">Здоровье</span>!
+            </div>
+
             <div id="main-menu" class="ui-panel">
-                <h1>Тест игры</h1>
+                <h1>Космический шутер</h1>
                 <button id="start-game-btn">Новая игра</button>
             </div>
             <div id="game-over" class="ui-panel hidden">
@@ -28,6 +41,7 @@
                 <h1>Игра на паузе</h1>
                 <button id="resume-btn">Продолжить</button>
             </div>
+
         </div>
         <script type="module" src="js/main.js"></script>
     </body>
