@@ -7,41 +7,88 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
     <body>
-        <div id="game-container">
-            <div id="top-bar">
-                <div>Волна: <span id="wave-display">1</span></div>
-                <div>Прогресс: <span id="wave-progress-display">0/10</span></div>
-                <div>Счет: <span id="score-display">0</span></div>
-                <div>Убито: <span id="kills-display">0</span></div>
-                <div>Множитель: <span id="multiplier-display">x1.00</span></div>
-            </div>
-            <canvas id="gameCanvas" width="1000" height="900"></canvas>
+        <div id="game-wrapper">
+            <!-- Игровая область -->
+            <div id="game-area">
 
-            <div id="notification-multiplier" class="game-notification hidden">
-                Множитель x<span id="notif-mult-value">2.00</span>!
-            </div>
-            
-            <div id="notification-wave" class="game-notification hidden">
-                🌊 Волна: <span id="notif-wave-name">Разведка</span>!
-            </div>
-            
-            <div id="notification-bonus" class="game-notification hidden">
-                ✨ Получено: <span id="notif-bonus-name">Здоровье</span>!
+                <canvas id="starfieldCanvas" width="1000" height="900"></canvas>
+
+                <canvas id="gameCanvas" width="1000" height="900"></canvas>
+
+                <div id="notification-multiplier" class="game-notification hidden">
+                    Множитель x<span id="notif-mult-value">2.00</span>!
+                </div>
+                
+                <div id="notification-wave" class="game-notification hidden">
+                    🌊 Волна: <span id="notif-wave-name">Разведка</span>!
+                </div>
+                
+                <div id="notification-bonus" class="game-notification hidden">
+                    ✨ Получено: <span id="notif-bonus-name">Здоровье</span>!
+                </div>
+
+                <div id="main-menu" class="ui-panel">
+                    <h1>Космический шутер</h1>
+                    <button id="start-game-btn">Новая игра</button>
+                </div>
+                <div id="game-over" class="ui-panel hidden">
+                    <h1>Увы, вы проиграли😢</h1>
+                    <button id="restart-btn">Играть снова</button>
+                </div>
+                <div id="game-pause" class="ui-panel hidden">
+                    <h1>Игра на паузе</h1>
+                    <button id="resume-btn">Продолжить</button>
+                </div>
             </div>
 
-            <div id="main-menu" class="ui-panel">
-                <h1>Космический шутер</h1>
-                <button id="start-game-btn">Новая игра</button>
-            </div>
-            <div id="game-over" class="ui-panel hidden">
-                <h1>Увы, вы проиграли😢</h1>
-                <button id="restart-btn">Играть снова</button>
-            </div>
-            <div id="game-pause" class="ui-panel hidden">
-                <h1>Игра на паузе</h1>
-                <button id="resume-btn">Продолжить</button>
-            </div>
+                <!-- Правая панель со статами -->
+            <aside id="stats-panel">
+                <h2>Статистика</h2>
+                
+                <div class="stat-block">
+                    <span class="stat-label">Здоровье:</span>
+                    <div id="panel-health-bar" class="bar-container">
+                        <div id="panel-health-fill" style="width: 100%;"></div>
+                    </div>
+                </div>
 
+                <div class="stat-block">
+                    <span class="stat-label">Скорострельность: <span class="stat-value" id="panel-weapon-speed">1</span></span>
+                </div>
+                <div class="stat-block">
+                    <span class="stat-label">Количество пуль: <span class="stat-value" id="panel-weapon-count">1</span></span>
+                </div>
+
+                <div class="stat-block">
+                    <span class="stat-label">Щит: <span class="stat-value" id="panel-shield-status">Нет</span></span>
+                </div>
+
+                <div class="stat-block">
+                    <span class="stat-label">Волна: <span class="stat-value" id="wave-display">1</span></span>
+                </div>
+
+                <div class="stat-block">
+                    <span class="stat-label">Прогресс: <span class="stat-value" id="wave-progress-display">0/10</span></span>
+                </div>
+
+                <div class="stat-block">
+                    <span class="stat-label">Счет: <span class="stat-value" id="score-display">0</span></span>
+                </div>
+
+                <div class="stat-block">
+                    <span class="stat-label">Убито: <span class="stat-value" id="kills-display">0</span></span>
+                </div>
+                
+                <div class="stat-block">
+                    <span class="stat-label">Множитель: <span class="stat-value" id="multiplier-display">x1.00</span></span>
+                </div>
+
+                <!-- Место для будущего меню скинов -->
+                <div class="menu-section">
+                    <!-- <h3>Внешний вид</h3> -->
+                    <!-- <button id="skin-select-btn">Выбрать корабль</button> -->
+                </div>
+            </aside>
         </div>
         <script type="module" src="js/main.js"></script>
     </body>

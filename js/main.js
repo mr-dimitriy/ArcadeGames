@@ -6,6 +6,7 @@ import { UIManager } from "./Managers/UIManager.js";
 import { Player } from "./GameObjects/Creatures.js";
 import { WaveManager } from "./Managers/WaveManager.js";
 import { BonusManager } from "./Managers/BonusManager.js";
+import { Starfield } from "./Effects/Starfield.js";
 import { gameConfig } from "./config.js";
 
 import { Bonus } from "./GameObjects/Bonus.js";
@@ -27,6 +28,8 @@ class Game{
         this.player = null;
         this.enemies = [];
         this.bullets = [];
+
+        this.starfield = null;
         
         // Состояние
         this.isGameOver = false;
@@ -34,11 +37,11 @@ class Game{
         this.enemySpawnInterval = null;
         this.lastFrameTime = Date.now();
 
-
         // Загрузка ресурсов
         this.assetLoader = new AssetLoader();
         this.assetLoader.loadAll(() => {
             this.enemyFactory = new EnemyFactory(this.assetLoader.spriteSheets);
+            this.initStarfield();
             this.initUI();
         });
 
@@ -73,6 +76,27 @@ class Game{
         
     }
 
+    initStarfield() {
+        const starCanvas = document.getElementById('starfieldCanvas');
+        if (!starCanvas) return;
+        
+        const ctx = starCanvas.getContext('2d');
+        const width = starCanvas.width;
+        const height = starCanvas.height;
+        
+        // Очищаем на всякий случай
+        ctx.clearRect(0, 0, width, height);
+        
+        this.starfield = new Starfield(
+            gameConfig.canvas.width, 
+            gameConfig.canvas.height,
+        );
+
+        this.starfield.createNewStars(200);
+    }
+
+
+
     startGame() {
         this.isGameOver = false;
         this.enemies = [];
@@ -93,20 +117,6 @@ class Game{
             45, 45, 
             this.assetLoader.playerSprites
         );
-
-        // this.spawnEnemy();
-
-        // this.enemySpawnInterval = setInterval(() =>
-        //     {
-        //         this.spawnEnemy();
-        //         // Обновляем интервал динамически
-        //         clearInterval(this.enemySpawnInterval);
-        //         this.enemySpawnInterval = setInterval(() => {
-        //             this.spawnEnemy();
-        //         }, this.getSpawnInterval());
-        //     },
-        //         this.getSpawnInterval()
-        //     );
 
         this.gameLoop();
     }    
@@ -168,7 +178,6 @@ class Game{
     }
 
     update() {
-        
         const currentTime = Date.now();
         const deltaTime = currentTime - this.lastFrameTime;
 
@@ -176,10 +185,11 @@ class Game{
         
         this.lastFrameTime = currentTime;
 
-        // Обновляем менеджер волн
+        this.starfield.update(deltaTime);
+        // Обновляем менеджер волн и бонусов
         this.waveManager.update(deltaTime);
         this.bonusManager.update(deltaTime);
-
+        
         const collectedBonus = this.bonusManager.checkCollision(this.player);
         if (collectedBonus) {
             this.ui.showBonusNotification(collectedBonus);
@@ -189,7 +199,6 @@ class Game{
         if (this.shouldSpawnEnemy()) {
             this.spawnEnemy();
         }
-
         this.updatePause();
 
         this.updatePlayer();
@@ -247,14 +256,17 @@ class Game{
     }
 
     draw() {
+
+        this.ctx.fillStyle = '#050510';
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.starfield.draw(this.ctx);
 
         for (const enemy of this.enemies) {
             if (enemy.isLoaded){
                 enemy.draw(this.ctx);
             }
         }
-
         this.player.draw(this.ctx);
 
         // Рисуем пули
@@ -263,6 +275,7 @@ class Game{
         }
         this.bonusManager.draw(this.ctx);
         this.ui.updateWaveInfo(this.waveManager.getWaveInfo());
+        this.ui.updateStatsPanel(this.player);
     }
 
     checkCollisions() {

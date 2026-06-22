@@ -1,10 +1,7 @@
 
 export class UIManager {
     constructor() {
-        this.scoreDisplay = document.getElementById('score-display');
-        this.killsDisplay = document.getElementById('kills-display');
-        this.multiplierDisplay = document.getElementById('multiplier-display');
-        this.killsForNextDisplay = document.getElementById('killsForNext-display');
+
 
         // Панели меню
         this.mainMenu = document.getElementById('main-menu');
@@ -20,8 +17,20 @@ export class UIManager {
         this.notifWaveName = document.getElementById('notif-wave-name');
         this.notifBonusName = document.getElementById('notif-bonus-name');
 
+        //Элементы панели статистики
+        this.panelHealthFill = document.getElementById('panel-health-fill');
+        this.panelWeaponSpeed = document.getElementById('panel-weapon-speed');
+        this.panelWeaponCount = document.getElementById('panel-weapon-count');
+        
+        this.panelShieldStatus = document.getElementById('panel-shield-status');
+        this.scoreDisplay = document.getElementById('score-display');
+        this.killsDisplay = document.getElementById('kills-display');
+        this.multiplierDisplay = document.getElementById('multiplier-display');
+        this.killsForNextDisplay = document.getElementById('killsForNext-display');
         this.waveDisplay = document.getElementById('wave-display');
         this.waveProgressDisplay = document.getElementById('wave-progress-display');
+
+
 
         // Таймеры для автоматического скрытия
         this.hideTimers = {};
@@ -95,6 +104,46 @@ export class UIManager {
         }
     }
     
+        // Новый метод обновления панели статов
+    updateStatsPanel(player) {
+        if (!player) return;
+
+        // Здоровье
+        const healthPercent = (player.playerHealth / 3) * 100;
+        if (this.panelHealthFill) {
+            this.panelHealthFill.style.width = `${healthPercent}%`;
+            
+            // Меняем цвет полоски в зависимости от здоровья
+            if (healthPercent > 70) this.panelHealthFill.style.background = '#00ff00';
+            else if (healthPercent > 40) this.panelHealthFill.style.background = '#ffff00';
+            else this.panelHealthFill.style.background = '#ff0000';
+        }
+
+        // Уровень оружия
+        if (this.panelWeaponSpeed) {
+            this.panelWeaponSpeed.textContent = `1 выстрел в ${(player.shootCooldown/1000)} сек`;
+        }
+        
+        // Уровень оружия
+        if (this.panelWeaponCount) {
+            this.panelWeaponCount.textContent = player.weaponBulletCount;
+        }
+
+        // Статус щита
+        if (this.panelShieldStatus) {
+            if (player.hasShield()) {
+                const timeLeft = Math.ceil((player.shield.expiresAt - Date.now()) / 1000);
+                const type = player.shield.isStrong ? '🔰 Крепкий' : '🛡️ Обычный';
+                this.panelShieldStatus.textContent = `${type} (${timeLeft}с)`;
+                this.panelShieldStatus.style.color = player.shield.isStrong ? '#8800ff' : '#00ffff';
+            } else {
+                this.panelShieldStatus.textContent = 'Нет';
+                this.panelShieldStatus.style.color = '#666';
+            }
+        }
+    }
+
+
     updateAll(scoreManager) {
         this.updateScore(scoreManager.score);
         this.updateKills(scoreManager.kills);

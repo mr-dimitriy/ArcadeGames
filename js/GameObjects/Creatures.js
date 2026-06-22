@@ -195,7 +195,6 @@ export class Player extends Creature{
         };
     }
 
-
     drawCooldownBar(ctx) {
         const player = this;
         const currentTime = Date.now();
@@ -276,7 +275,7 @@ export class Player extends Creature{
             ctx.drawImage(sprite, this.x, this.y, this.sizeX, this.sizeY);
 
             this.drawCooldownBar(ctx);
-            this.drawHealthfBar(ctx);
+            //this.drawHealthfBar(ctx);
             this.drawShield(ctx);
         }
     }
